@@ -1,5 +1,7 @@
 package by.tretyak.logBook.service;
 
+import by.tretyak.logBook.exception.ObjectNotFoundException;
+import by.tretyak.logBook.exception.source.ExceptionMessageSource;
 import by.tretyak.logBook.model.Card;
 import by.tretyak.logBook.model.dto.CardDto;
 import by.tretyak.logBook.model.dto.CardsDto;
@@ -22,35 +24,37 @@ public class CardService {
         this.cardRepository = repository;
     }
 
-    public CardsDto findAll() {
+    public CardsDto findAll() throws ObjectNotFoundException {
         List<Card> cards = this.cardRepository.findAll();
         CardsDto cardsDto = new CardsDto();
         cardsDto.setCards(new ArrayList<>());
         cards.stream().forEach(card ->
                 cardsDto.getCards().add(new CardDto(card.getCardId(), card.getBalance())));
         if (cardsDto.getCards().isEmpty()) {
-            return null;
+            throw new ObjectNotFoundException(ExceptionMessageSource
+            .getMessage(ExceptionMessageSource.DATA_NOT_FOUND));
         }
         return cardsDto;
     }
 
 
-    public CardDto getCardBalance(CardDto cardDto) {
+    public CardDto getCardBalance(CardDto cardDto) throws ObjectNotFoundException {
         Card card = this.cardRepository.findByCardId(cardDto.getId()).orElseThrow(() ->
-                new RuntimeException("Объект не найден"));
-        int x = 0;
+                new ObjectNotFoundException(ExceptionMessageSource
+                        .getMessage(ExceptionMessageSource.DATA_NOT_FOUND)));
         return new CardDto(card.getCardId(), card.getBalance());
     }
 
     @Transactional
-    public CardsDto getUserCards(List<Integer> cardsId) {
+    public CardsDto getUserCards(List<Integer> cardsId) throws ObjectNotFoundException{
         List<CardDto> resultCards = new ArrayList<>();
         for (Integer cardId: cardsId) {
             this.cardRepository.findByCardId(cardId).ifPresent(card ->
                     resultCards.add(new CardDto(card.getCardId(), card.getBalance())));
         }
         if(resultCards.isEmpty()) {
-            throw new RuntimeException("Ни одной карты не найдено");
+            throw new ObjectNotFoundException(ExceptionMessageSource
+            .getMessage(ExceptionMessageSource.DATA_NOT_FOUND));
         }
         return new CardsDto(resultCards);
     }

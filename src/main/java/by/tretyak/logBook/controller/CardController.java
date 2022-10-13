@@ -1,5 +1,6 @@
 package by.tretyak.logBook.controller;
 
+import by.tretyak.logBook.exception.ObjectNotFoundException;
 import by.tretyak.logBook.model.dto.CardDto;
 import by.tretyak.logBook.model.dto.CardsDto;
 import by.tretyak.logBook.service.CardService;
@@ -14,18 +15,21 @@ public class CardController {
     @Autowired
     private CardService cardService;
 
-    @PostMapping("/balance")
-    public CardDto getCardBalance(@RequestBody CardDto card) {
+    private static final String BALANCE_PATH = "/balance";
+    private static final String CARDS_PATH = "/cards";
+
+    @PostMapping(BALANCE_PATH)
+    public CardDto getCardBalance(@RequestBody CardDto card) throws ObjectNotFoundException {
         return this.cardService.getCardBalance(card);
     }
 
-    @GetMapping("/cards")
-    public CardsDto findAll() {
+    @GetMapping(CARDS_PATH)
+    public CardsDto findAll() throws ObjectNotFoundException  {
         return this.cardService.findAll();
     }
 
-    @PostMapping("/cards")
-    public CardsDto getUserCardsInfo(@RequestBody List<Integer> cardsId) {
+    @PostMapping(CARDS_PATH)
+    public CardsDto getUserCardsInfo(@RequestBody List<Integer> cardsId) throws ObjectNotFoundException  {
         return this.cardService.getUserCards(cardsId);
     }
 
